@@ -14,7 +14,7 @@ async function refresh($: EngineInterface): Promise<void> {
 
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
-    // /clear で始め直したときに時計が2つにならないよう、前のを止める
+    // 有効にし直したときなどに時計が2つにならないよう、前のを止める(/clear では来ない)
     timer?.cancel()
     timer = $.clock.every(REFRESH_MS, () => void refresh($).catch(() => {})) // 読めなければ前の表示のまま
     await refresh($)
