@@ -1,0 +1,1 @@
+{ "name": "usage-view", "version": "0.1.0", "description": "コンテキスト・5時間枠・週間枠の使用量をステータスラインに1行で出す", "author": { "name": "AndoYuto87" }, "license": "MIT" }

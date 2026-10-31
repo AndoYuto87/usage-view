@@ -1,0 +1,6 @@
+{
+  "name": "usage-view",
+  "description": "usage-view を配るマーケットプレイス",
+  "owner": { "name": "AndoYuto87" },
+  "plugins": [{ "name": "usage-view", "source": "./usage-view" }]
+}
