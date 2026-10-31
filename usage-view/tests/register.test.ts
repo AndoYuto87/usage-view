@@ -18,16 +18,19 @@ const empty: SessionUsage = { startedAt: start, context: { window: 1_000_000 }, 
 let status: string | undefined
 let usage: SessionUsage
 let isBroken = false // true なら $.session.usage() が読めない
+let reads = 0 // $.session.usage() が呼ばれた回数
 let clock: MockClock
 
 function engine(on: Parameters<Parameters<typeof test>[1]>[1], first: SessionUsage = full) {
   status = 'まだ出ていない'
   usage = first
   isBroken = false
+  reads = 0
   clock = mock.clock(on, { now: start })
   on('session.start', (_, e) => ({ cwd: e.cwd }))
   on('session.measure', (_, e) => ({ changed: e.changed }))
   on('session.usage', () => {
+    reads++
     if (isBroken) throw new Error('読めない')
     return { value: usage }
   })
@@ -65,6 +68,16 @@ test('ターンの合間も60秒ごとに書き直し、時間が減る', async 
   expect(status).toBe('ctx ■□□□□ 10% │ 5h ■■□□□ 35%(0h11m) │ 7d ■■□□□ 45%(1d7h)')
   await clock.advance(60_000)
   expect(status).toBe('ctx ■□□□□ 10% │ 5h ■■□□□ 35%(0h10m) │ 7d ■■□□□ 45%(1d7h)')
+})
+
+test('session.start が2回来ても、60秒ごとの読み取りは1回', async ($, on) => {
+  // 有効にし直したときなどに2回目が来る
+  engine(on)
+  await begin($)
+  await begin($)
+  const before = reads
+  await clock.advance(60_000)
+  expect(reads).toBe(before + 1)
 })
 
 test('値が無ければ行を消す', async ($, on) => {
